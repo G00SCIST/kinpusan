@@ -2471,8 +2471,8 @@ body.hero-play .hero-scroll { transition-delay: 4.6s; }
   .hero-controls { bottom: 72px; right: 14px; }
   .hc-btn { width: 38px; height: 38px; }
 
-  /* Reset the -22px desktop offset on mobile (mobile has no scrollbar, no letter-spacing issue) */
-  .hero-scroll { left: 50% !important; }
+  /* Shift SCROLL block left to compensate for trailing letter-spacing on text */
+  .hero-scroll { left: calc(50% - 14px) !important; }
 
   /* DRIVERS */
   .drivers-inner {
