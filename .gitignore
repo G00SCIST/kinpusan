@@ -1,0 +1,7 @@
+.DS_Store
+.claude/
+skills-lock.json
+*.log
+node_modules/
+.env
+.env.local
