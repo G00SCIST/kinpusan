@@ -2508,13 +2508,24 @@ body.hero-play .hero-scroll { transition-delay: 4.6s; }
   .wp-art { max-width: 100%; position: relative; z-index: 1; }
   .wp-info { position: relative; z-index: 1; }
 
-  /* SUMMIT — compact so Viktor's face is visible */
+  /* SUMMIT — compact so Viktor's face is visible + MOBILE PERF OPTIMIZATIONS */
   .summit { min-height: 95vh; padding: 80px 14px 40px; }
   .summit-kanji { font-size: clamp(7rem, 42vw, 14rem); top: 8%; }
   .summit-character {
     width: clamp(300px, 88vw, 520px);
     max-height: 55vh;
     bottom: 36vh;
+    /* Kill expensive effects on mobile: blend-mode, mask, animated filter */
+    mix-blend-mode: normal !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+    animation: none !important;
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.7)) !important;
+  }
+  .summit-character img {
+    mix-blend-mode: normal !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
   }
   .summit-content { margin-top: auto; }
   .summit-name { font-size: clamp(2.4rem, 10vw, 3.8rem); }
@@ -3405,7 +3416,8 @@ body.hero-play .hero-scroll { transition-delay: 4.6s; }
 
   // ─── LENIS ─────────────────────────────────────────────
   let lenis = null;
-  if (!noMotion && typeof Lenis !== 'undefined') {
+  // Lenis disabled on mobile/touch — native iOS momentum scroll is better and Lenis lags
+  if (!noMotion && !isMobile && !isTouch && typeof Lenis !== 'undefined') {
     try {
       lenis = new Lenis({
         duration: 1.15,
@@ -3586,9 +3598,9 @@ body.hero-play .hero-scroll { transition-delay: 4.6s; }
     document.body.classList.add('hero-play');
   }, 3100);
 
-  // ─── HERO CANVAS — depth particles reactive to mouse ───
+  // ─── HERO CANVAS — depth particles reactive to mouse (desktop only) ───
   (function heroCanvas(){
-    if (noMotion) return;
+    if (noMotion || isMobile || isTouch) return;
     const canvas = document.getElementById('heroCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -3647,9 +3659,9 @@ body.hero-play .hero-scroll { transition-delay: 4.6s; }
     requestAnimationFrame(tick);
   })();
 
-  // ─── BG CANVAS — ambient drifting dots ─────────────────
+  // ─── BG CANVAS — ambient drifting dots (desktop only, saves mobile GPU) ───
   (function bgCanvas(){
-    if (noMotion) return;
+    if (noMotion || isMobile || isTouch) return;
     const canvas = document.getElementById('bgCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -3765,9 +3777,9 @@ body.hero-play .hero-scroll { transition-delay: 4.6s; }
         });
       }
 
-      // Scroll-tied pan + zoom on image (like summit bg) — works on mobile too
+      // Scroll-tied pan+zoom (desktop only — 5 simultaneous scrubs kill mobile Safari GPU)
       const img = art?.querySelector('img');
-      if (img && typeof ScrollTrigger !== 'undefined') {
+      if (img && typeof ScrollTrigger !== 'undefined' && !isMobile && !isTouch) {
         gsap.fromTo(img,
           { yPercent: -14, scale: 1.14 },
           {
@@ -3840,14 +3852,14 @@ body.hero-play .hero-scroll { transition-delay: 4.6s; }
     const bg = document.querySelector('.summit-bg');
     const char = document.getElementById('summitChar');
 
-    // Scroll parallax on bg + kanji
-    if (summit && typeof ScrollTrigger !== 'undefined') {
+    // Scroll parallax on bg + kanji (DESKTOP ONLY — mobile browsers choke on multiple scrubs)
+    if (summit && typeof ScrollTrigger !== 'undefined' && !isMobile && !isTouch) {
       if (bg)    gsap.to(bg,    { yPercent: -10, ease: 'none', scrollTrigger: { trigger: summit, start: 'top bottom', end: 'bottom top', scrub: 1 } });
       if (kanji) gsap.to(kanji, { yPercent: -30, ease: 'none', scrollTrigger: { trigger: summit, start: 'top bottom', end: 'bottom top', scrub: 1 } });
     }
 
-    // Floating animation on character (subtle Y oscillation)
-    if (char) {
+    // Floating animation on character (desktop only — mobile got flickering from constant transform updates)
+    if (char && !isMobile && !isTouch) {
       gsap.to(char, { y: -24, duration: 3.2, yoyo: true, repeat: -1, ease: 'sine.inOut' });
     }
 
@@ -3886,9 +3898,9 @@ body.hero-play .hero-scroll { transition-delay: 4.6s; }
     }
   }
 
-  // ─── SUMMIT THREE.JS PARTICLES ─────────────────────────
+  // ─── SUMMIT THREE.JS PARTICLES (desktop only — iOS Safari can't handle it) ───
   function initSummitParticles() {
-    if (typeof THREE === 'undefined' || noMotion) return;
+    if (typeof THREE === 'undefined' || noMotion || isMobile || isTouch) return;
     const canvas = document.getElementById('summitCanvas');
     if (!canvas) return;
     const section = document.querySelector('.summit');
@@ -3978,9 +3990,9 @@ body.hero-play .hero-scroll { transition-delay: 4.6s; }
   }
   initSummitParticles();
 
-  // ─── ONSEN STEAM ───────────────────────────────────────
+  // ─── ONSEN STEAM (desktop only, saves mobile GPU) ──────
   (function onsenSteam(){
-    if (noMotion) return;
+    if (noMotion || isMobile || isTouch) return;
     const canvas = document.getElementById('onsenSteam');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -4033,12 +4045,32 @@ body.hero-play .hero-scroll { transition-delay: 4.6s; }
     document.addEventListener('visibilitychange', () => { running = !document.hidden; });
   })();
 
-  // ─── SECRET THREE.JS LOOTBOX ───────────────────────────
+  // ─── SECRET THREE.JS LOOTBOX — mobile gets simple CSS fallback ───
   (function secretBox(){
     if (typeof THREE === 'undefined') return;
     const canvas = document.getElementById('secretCanvas');
     if (!canvas) return;
     const stage = canvas.parentElement;
+
+    // On mobile, skip Three.js (WebGL contexts are expensive); use simple click handler
+    if (isMobile || isTouch) {
+      canvas.style.display = 'none';
+      let opened = false;
+      const triggerOpen = () => {
+        if (opened) return;
+        opened = true;
+        document.querySelector('.secret-prompt')?.style.setProperty('display', 'none');
+        document.querySelector('.secret-label')?.style.setProperty('display', 'none');
+        setTimeout(() => {
+          document.getElementById('secretReveal')?.classList.add('on');
+          document.getElementById('secretDesc')?.classList.add('on');
+        }, 200);
+      };
+      stage.addEventListener('click', triggerOpen);
+      stage.addEventListener('touchend', triggerOpen);
+      stage.style.cursor = 'pointer';
+      return;
+    }
 
     let W = stage.offsetWidth, H = stage.offsetHeight;
     const scene = new THREE.Scene();
