@@ -1015,6 +1015,179 @@ body.hero-play .hero-scroll { transition-delay: 4.6s; }
 }
 
 /* ═══════════════════════════════════════════════════════════
+   TIMELINE — schedule of the day
+   ═══════════════════════════════════════════════════════════ */
+.tl-wrap {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: clamp(28px, 4vw, 64px);
+  align-items: start;
+}
+.tl-clock {
+  width: clamp(180px, 22vw, 320px);
+  aspect-ratio: 1/1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tl-clock-ring {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--blue);
+  border-radius: 50%;
+  opacity: 0.4;
+}
+.tl-clock-ring.r2 {
+  inset: 8%;
+  border-color: var(--purple);
+  border-style: dashed;
+  opacity: 0.3;
+  animation: ringRotate 40s linear infinite;
+}
+.tl-clock-ring.r3 {
+  inset: 18%;
+  border-color: var(--blue);
+  opacity: 0.6;
+  animation: ringRotate 25s linear infinite reverse;
+}
+.tl-clock-tick {
+  position: absolute;
+  width: 1px;
+  height: 8px;
+  background: var(--blue);
+  left: 50%;
+  top: 4px;
+  transform-origin: 50% calc(50% - 4px + 50% - 4px);
+  opacity: 0.5;
+}
+.tl-clock-center {
+  font-family: var(--f-display);
+  font-weight: 900;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+.tl-clock-h {
+  display: block;
+  font-size: clamp(2.8rem, 7vw, 5rem);
+  line-height: 1;
+  background: linear-gradient(180deg, #fff, var(--blue));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(0 0 14px rgba(0, 229, 255, 0.5));
+}
+.tl-clock-l {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.4em;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.tl-track {
+  position: relative;
+  padding-left: 28px;
+}
+.tl-track::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 1px;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    rgba(0, 229, 255, 0.3) 8%,
+    rgba(183, 148, 246, 0.3) 50%,
+    rgba(251, 191, 36, 0.4) 92%,
+    transparent 100%);
+}
+.tl-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: clamp(18px, 3vw, 36px);
+  align-items: baseline;
+  padding: 14px 0;
+  border-bottom: 1px dashed var(--border-dim);
+}
+.tl-item:last-child { border-bottom: none; }
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -32px;
+  top: 22px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--blue);
+  box-shadow: 0 0 0 4px var(--bg), 0 0 14px rgba(0, 229, 255, 0.6);
+  transition: border-color 0.4s, box-shadow 0.4s;
+}
+.tl-item.peak::before {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px var(--bg), 0 0 18px rgba(251, 191, 36, 0.7);
+}
+.tl-time {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: clamp(1.3rem, 2.4vw, 1.9rem);
+  color: var(--blue);
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.45);
+  white-space: nowrap;
+  min-width: 4em;
+}
+.tl-item.peak .tl-time {
+  color: var(--gold);
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.55);
+}
+.tl-event {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.tl-event strong {
+  font-family: var(--f-body);
+  font-weight: 600;
+  font-size: clamp(0.96rem, 1.3vw, 1.08rem);
+  color: var(--ink);
+  letter-spacing: 0.01em;
+}
+.tl-event span {
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .tl-wrap {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    justify-items: center;
+  }
+  .tl-clock { width: 200px; }
+  .tl-track { width: 100%; max-width: 460px; }
+}
+@media (max-width: 600px) {
+  .tl-time { font-size: 1.15rem; min-width: 3.6em; }
+  .tl-event strong { font-size: 0.92rem; }
+  .tl-event span { font-size: 0.62rem; letter-spacing: 0.12em; }
+  .tl-item { padding: 11px 0; gap: 14px; }
+  .tl-track { padding-left: 22px; }
+  .tl-item::before { left: -26px; top: 18px; width: 7px; height: 7px; }
+}
+
+/* ═══════════════════════════════════════════════════════════
    ROUTE — SVG elevation profile + waypoint scenes
    ═══════════════════════════════════════════════════════════ */
 .route-stats {
@@ -2837,6 +3010,95 @@ body.hero-play .hero-scroll { transition-delay: 4.6s; }
       </p>
     </div>
     <div class="drivers-badge">NEED 1-2</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TIMELINE — schedule of the day
+     ═══════════════════════════════════════════════════════════ -->
+<section class="sect" id="timeline">
+  <div class="sect-inner">
+    <div class="sect-head">
+      <div>
+        <div class="sect-num">· 00 · Schedule</div>
+        <h2 class="sect-title">The <span class="accent">Day</span></h2>
+      </div>
+      <div class="sect-aside">
+        <strong>TOKYO → MOUNTAIN → TOKYO</strong><br>
+        ~13H · ROUND TRIP
+      </div>
+    </div>
+
+    <div class="tl-wrap">
+      <div class="tl-clock">
+        <div class="tl-clock-ring"></div>
+        <div class="tl-clock-ring r2"></div>
+        <div class="tl-clock-ring r3"></div>
+        <div class="tl-clock-center">
+          <span class="tl-clock-h">13<span style="color: var(--ink-mute); -webkit-text-fill-color: var(--ink-mute);">H</span></span>
+          <span class="tl-clock-l">Total</span>
+        </div>
+      </div>
+
+      <div class="tl-track">
+        <div class="tl-item">
+          <div class="tl-time">07:00</div>
+          <div class="tl-event">
+            <strong data-ru="Выезд из Токио" data-en="Departure from Tokyo">Выезд из Токио</strong>
+            <span>Tokyo → Yamanashi</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">09:30</div>
+          <div class="tl-event">
+            <strong data-ru="Прибытие на парковку Mizugakiyama-so" data-en="Arrival at Mizugakiyama-so parking">Прибытие на парковку Mizugakiyama-so</strong>
+            <span>1,520 M · Trailhead</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">09:45</div>
+          <div class="tl-event">
+            <strong data-ru="Старт маршрута" data-en="Route start">Старт маршрута</strong>
+            <span>Sphere of Reality begins</span>
+          </div>
+        </div>
+        <div class="tl-item peak">
+          <div class="tl-time">13:15</div>
+          <div class="tl-event">
+            <strong data-ru="Вершина Kinpusan · 2,599м" data-en="Kinpusan Summit · 2,599m">Вершина Kinpusan · 2,599м</strong>
+            <span>Final Point · Gojoseki 五丈石</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">16:45</div>
+          <div class="tl-event">
+            <strong data-ru="Финиш на парковке" data-en="Finish at parking">Финиш на парковке</strong>
+            <span>Back to Mizugakiyama-so</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">17:00</div>
+          <div class="tl-event">
+            <strong data-ru="Masutomi Onsen 増富温泉 — 40 мин" data-en="Masutomi Onsen 増富温泉 — 40 min">Masutomi Onsen 増富温泉 — 40 мин</strong>
+            <span>Optional · Hot Spring</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">17:45</div>
+          <div class="tl-event">
+            <strong data-ru="Выезд домой" data-en="Drive home">Выезд домой</strong>
+            <span>Yamanashi → Tokyo</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-time">20:15</div>
+          <div class="tl-event">
+            <strong data-ru="Токио" data-en="Tokyo">Токио</strong>
+            <span>Day complete</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
