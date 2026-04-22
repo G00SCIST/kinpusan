@@ -4255,9 +4255,9 @@ body.hero-play .hero-scroll { transition-delay: 4.6s; }
   }
   initSummitParticles();
 
-  // ─── ONSEN STEAM ───────────────────────────────────────
+  // ─── ONSEN STEAM — disabled on mobile (looked out of place per user) ───
   (function onsenSteam(){
-    if (noMotion) return;
+    if (noMotion || isMobile || isTouch) return;
     const canvas = document.getElementById('onsenSteam');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
